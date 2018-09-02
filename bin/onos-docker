@@ -25,4 +25,4 @@ source $ONOS_DOCKER/envSetup
 ODCI=$ODC1
 [ -n "$1" ] && ODCI=$1 && shift
 
-sshpass -pkaraf ssh -p 8101 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null karaf@$ODCI "$@"
+sshpass -pkaraf ssh -p 8101 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet karaf@$ODCI "$@"
