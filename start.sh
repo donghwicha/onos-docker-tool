@@ -106,13 +106,13 @@ for ((i=0; i < ${#PUBLIC_OC_IPS[@]}; i++))
     pub_oc_name=${PUBLIC_OC_IPS[$i]}
 
     echo "Pulling ONOS-SONA docker image at ${!pub_oc_name}..."
-    ssh sdn@"${!pub_oc_name}" "sudo docker pull $REPO_PATH/$ONOS_REPO_NAME:$ONOS_REPO_TAG"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "sudo docker pull $REPO_PATH/$ONOS_REPO_NAME:$ONOS_REPO_TAG"
 
     # shellcheck disable=SC2086
-    if [ "$(ssh sdn@${!pub_oc_name} 'sudo docker ps -q -a -f name=onos')" ]; then
+    if [ "$(ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@${!pub_oc_name} 'sudo docker ps -q -a -f name=onos')" ]; then
         echo "Wiping out existing ONOS-SONA container at ${!pub_oc_name}..."
-        ssh sdn@"${!pub_oc_name}" "sudo docker stop onos || true" > /dev/null
-        ssh sdn@"${!pub_oc_name}" "sudo docker rm onos || true" > /dev/null
+        ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "sudo docker stop onos || true" > /dev/null
+        ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "sudo docker rm onos || true" > /dev/null
     fi
 }
 
@@ -122,13 +122,13 @@ for ((i=0; i < ${#PUBLIC_OCC_IPS[@]}; i++))
     pub_occ_name=${PUBLIC_OCC_IPS[$i]}
 
     echo "Pulling ATOMIX docker image at ${!pub_occ_name}..."
-    ssh sdn@"${!pub_occ_name}" "sudo docker pull $REPO_PATH/$ATOMIX_REPO_NAME:$ATOMIX_REPO_TAG"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "sudo docker pull $REPO_PATH/$ATOMIX_REPO_NAME:$ATOMIX_REPO_TAG"
 
     # shellcheck disable=SC2086
-    if [ "$(ssh sdn@${!pub_occ_name} 'sudo docker ps -q -a -f name=atomix')" ]; then
+    if [ "$(ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@${!pub_occ_name} 'sudo docker ps -q -a -f name=atomix')" ]; then
         echo "Wiping out existing ATOMIX container at ${!pub_occ_name}..."
-        ssh sdn@"${!pub_occ_name}" "sudo docker stop atomix || true" > /dev/null
-        ssh sdn@"${!pub_occ_name}" "sudo docker rm atomix || true" > /dev/null
+        ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "sudo docker stop atomix || true" > /dev/null
+        ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "sudo docker rm atomix || true" > /dev/null
     fi
 }
 
@@ -162,8 +162,8 @@ for ((i=0; i < ${#PUBLIC_OCC_IPS[@]}; i++))
     pub_occ_name=${PUBLIC_OCC_IPS[$i]}
     occ_name=${OCC_IPS[$i]}
 
-    ssh sdn@"${!pub_occ_name}" "rm -rf ~/atomix_config"
-    ssh sdn@"${!pub_occ_name}" "mkdir -p ~/atomix_config"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "rm -rf ~/atomix_config"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "mkdir -p ~/atomix_config"
 
     # generate and inject atomix.json file
     echo "Generating atomix.json..."
@@ -179,20 +179,20 @@ for ((i=0; i < ${#PUBLIC_OC_IPS[@]}; i++))
     pub_oc_name=${PUBLIC_OC_IPS[$i]}
     oc_name=${OC_IPS[$i]}
 
-    ssh sdn@"${!pub_oc_name}" "rm -rf ~/onos_config"
-    ssh sdn@"${!pub_oc_name}" "mkdir -p ~/onos_config"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "rm -rf ~/onos_config"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "mkdir -p ~/onos_config"
 
     # generate and inject cluster.json file
     echo "Generating cluster.json..."
     ONOS_CDEF_FILE=/tmp/"${!pub_oc_name}".cluster.json
     rm -rf $ONOS_CDEF_FILE
     python asset/onos-gen-config ${!oc_name} $ONOS_CDEF_FILE --nodes $oc_ips
-    scp -q $ONOS_CDEF_FILE sdn@"${!pub_oc_name}":~/onos_config/cluster.json
+    scp -o StrictHostKeyChecking=no -o LogLevel=quiet $ONOS_CDEF_FILE sdn@"${!pub_oc_name}":~/onos_config/cluster.json
 
     # copy component-config file if it exists
     if [ -f $ONOS_DOCKER_SITE_ROOT/$ONOS_DOCKER_SITE/component-cfg.json ]
     then
-      scp $ONOS_DOCKER_SITE_ROOT/$ONOS_DOCKER_SITE/component-cfg.json sdn@"${!pub_oc_name}":~/onos_config
+      scp -o StrictHostKeyChecking=no -o LogLevel=quiet $ONOS_DOCKER_SITE_ROOT/$ONOS_DOCKER_SITE/component-cfg.json sdn@"${!pub_oc_name}":~/onos_config
     fi
 }
 
@@ -200,8 +200,8 @@ echo "Launching Atomix cluster..."
 for ((i=0; i < ${#PUBLIC_OCC_IPS[@]}; i++))
 {
     pub_occ_name=${PUBLIC_OCC_IPS[$i]}
-    ssh sdn@"${!pub_occ_name}" "sudo docker run -itd --network host --name atomix -v ~/atomix_config:/root/atomix/config $REPO_PATH/$ATOMIX_REPO_NAME:$ATOMIX_REPO_TAG"
-    ssh sdn@"${!pub_occ_name}" "sudo docker ps"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "sudo docker run -itd --network host --name atomix -v ~/atomix_config:/root/atomix/config $REPO_PATH/$ATOMIX_REPO_NAME:$ATOMIX_REPO_TAG"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_occ_name}" "sudo docker ps"
 }
 
 # start ONOS-SONA container
@@ -209,8 +209,8 @@ echo "Launching ONOS cluster..."
 for ((i=0; i < ${#PUBLIC_OC_IPS[@]}; i++))
 {
     pub_oc_name=${PUBLIC_OC_IPS[$i]}
-    ssh sdn@"${!pub_oc_name}" "sudo docker run -itd --network host --name onos -v ~/onos_config:/root/onos/config $REPO_PATH/$ONOS_REPO_NAME:$ONOS_REPO_TAG"
-    ssh sdn@"${!pub_oc_name}" "sudo docker ps"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "sudo docker run -itd --network host --name onos -v ~/onos_config:/root/onos/config $REPO_PATH/$ONOS_REPO_NAME:$ONOS_REPO_TAG"
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet sdn@"${!pub_oc_name}" "sudo docker ps"
 }
 
 echo "Done!"
